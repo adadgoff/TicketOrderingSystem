@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  auth-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+  auth-service:
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/authdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - auth-db
+    ports:
+      - "8081:8080"
+
+  ticketordering-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ticketorderingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - ticketordering-db-data:/var/lib/postgresql/data
+
+  ticketordering-service:
+    build:
+      context: ./TicketOrdering
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ticketordering-db:5432/ticketorderingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - ticketordering-db
+    ports:
+      - "8082:8080"
+
+volumes:
+  auth-db-data:
+  ticketordering-db-data:
